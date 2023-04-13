@@ -1,3 +1,4 @@
+const { Console } = require("console");
 const express = require("express");
 const fs = require("fs");
 const app = express();
@@ -13,6 +14,9 @@ const filePath = `${__dirname}/dev-data/data/tours-simple.json`;
 const tours = JSON.parse(fs.readFileSync(filePath));
 
 //! Middlewares
+
+// It will be ran before req and res cycles
+
 //#region --------- Middleware (Recognize incoming req object has JSON object) ---------
 app.use(express.json());
 
@@ -50,6 +54,28 @@ app.get("/api/v1/tours", (req, res) => {
 });
 //#endregion ---------- GET ALL TOURS ----------
 
+//#region ---------- GET A TOURS ----------
+app.get("/api/v1/tours/:id", (req, res) => {
+  const _param_id = req.params.id * 1;
+
+  if (_param_id > tours.length) {
+    return res.status(404).json({
+      status: "fail",
+      message: "Invalid Id",
+    });
+  }
+
+  const newTour = tours.find((el) => el.id === _param_id);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      tours: newTour,
+    },
+  });
+});
+//#endregion ---------- GET ALL TOURS ----------
+
 /*
 
 
@@ -61,9 +87,6 @@ app.get("/api/v1/tours", (req, res) => {
 //! Posting Data
 //#region --------- POST A TOUR ---------
 app.post(`/api/v1/tours`, (req, res) => {
-  console.log(req);
-  console.log(req.body);
-
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
 
