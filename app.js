@@ -6,7 +6,12 @@ const userRouter = require("./routes/userRoutes");
 
 //! Middlewares
 // It will be ran before req and res cycle ends
-app.use(morgan("dev")); // Logging POST/api/v1/users 500 11.472 ms -58 MESSAGES LIKE THIS IS MORGAN
+
+console.log(process.env.NODE_ENV);
+// if (process.env.NODE_ENV === "developement") {
+// Logging POST/api/v1/users 500 11.472 ms -58 MESSAGES LIKE THIS IS MORGAN
+app.use(morgan("dev"));
+// }
 
 // Third party middleware
 //Middleware (Recognize incoming req object has JSON object)

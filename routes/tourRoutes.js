@@ -1,18 +1,33 @@
 const express = require("express");
 const tourController = require("../controllers/tourController");
+const tourController_m = require("../controllers/tourController_m");
 const router = express.Router();
 
-// val is the id or paramter which is passed in the url
-router.param("id", tourController.checkId);
+//! Old way with no databse
 
+// val is the id or paramter which is passed in the url
+// router.param("id", tourController.checkId);
+
+// router
+//   .route("/")
+//   .get(tourController.getAllTours)
+//   .post(tourController.checkBody, tourController.postTour);
+// router
+//   .route("/:id")
+//   .get(tourController.getTour)
+//   .patch(tourController.updateTour)
+//   .delete(tourController.deleteTour);
+
+//! New way with databse
 router
   .route("/")
-  .get(tourController.getAllTours)
-  .post(tourController.checkBody, tourController.postTour);
+  .post(tourController_m.createTour)
+  .get(tourController_m.getAllTours);
+
 router
   .route("/:id")
-  .get(tourController.getTour)
-  .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .get(tourController_m.getTour)
+  .patch(tourController_m.updateTour)
+  .delete(tourController_m.deleteTour);
 
 module.exports = router;
