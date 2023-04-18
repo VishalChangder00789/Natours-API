@@ -5,8 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 // console.log(process.env);
 
-const DB =
-  "mongodb+srv://vishal:vishal@natoursdb.qy7cavl.mongodb.net/natours   ";
+const DB = "mongodb+srv://vishal:vishal@natoursdb.qy7cavl.mongodb.net/natours";
 
 // mongodb setup
 mongoose
@@ -17,7 +16,7 @@ mongoose
     useUnifiedTopology: true,
   })
   .then((con) => {
-    console.log(con.connections);
+    // console.log(con.connections);
     console.log("DB Connection successful!");
   });
 

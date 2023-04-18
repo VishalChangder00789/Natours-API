@@ -19,6 +19,12 @@ const router = express.Router();
 //   .delete(tourController.deleteTour);
 
 //! New way with databse
+
+// Explanation : router.route('desiredRoute).get(middleware,mongoControllerMethod);
+router
+  .route("/top-5-cheap")
+  .get(tourController_m.aliasTopTours, tourController_m.getAllTours);
+
 router
   .route("/")
   .post(tourController_m.createTour)
