@@ -8,6 +8,7 @@ class APIFeatures {
   }
 
   filter() {
+    // Basic Filtering
     const queryObj = { ...this.queryString };
     const excludedFields = ["page", "sort", "limit", "fields"];
     excludedFields.forEach((el) => delete queryObj[el]);
@@ -120,7 +121,7 @@ exports.getTour = async (req, res) => {
 };
 
 exports.createTour = async (req, res) => {
-  // Newly created document stored in newTour and needed to be saved in the collections in db
+  // Newly created document stored in newTour and will be saved in the collections in db
   try {
     const newTour = await Tour.create(req.body);
     res.status(201).json({
@@ -139,89 +140,7 @@ exports.createTour = async (req, res) => {
 
 exports.getAllTours = async (req, res) => {
   try {
-    //#region  ---- CLEAN IMPLEMENTATION  ----
-    // console.log("Hovering\n", req.query);
-    // //1. FILTERING WAY 1 :: BUILDING QUERY AND : Basic
-
-    // // const allTours = await Tour.find();   // without filtering
-
-    // // const queryObj = req.query; // This is creating a pointer so whatever we do in queryobj will happen in req.query
-    // const queryObj = { ...req.query }; // This is a copy :: in case of arrays and objects
-    // // console.log("Double Hovering : ", "======================>", queryObj);
-    // const excludedFields = ["page", "sort", "limit", "fields"];
-    // excludedFields.forEach((el) => delete queryObj[el]);
-
-    // //2. ADVANCED FILTERING
-
-    // let queryStr = JSON.stringify(queryObj);
-    // // console.log(queryStr);
-
-    // //with regular expression
-    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-
-    // // query obj
-    // // {duration : {$gte:5},difficulty:'easy'}
-    // // erq.query
-    // // {duration :{gte:5},difficulty:'easy'}
-
-    // // Notice how the duration doesn't have the mongo db $ operator in the actual req.query obj
-    // // we need to add it back
-
-    // let query = Tour.find(JSON.parse(queryStr));
-    // console.log("=======================>");
-    // console.log(query._conditions);
-
-    // //3. SORTING
-    // if (req.query.sort) {
-    //   const sortBy = req.query.sort.split(",").join(" ");
-    //   console.log("My query", sortBy);
-    //   query = query.sort(sortBy);
-    // } else {
-    //   query = query.sort("-createdAt");
-    // }
-
-    // //4. FIELD LIMITS : WHAT ALL THE USER WANTS TO SEE
-    // if (req.query.fields) {
-    //   const fields = req.query.fields.split(",").join(" ");
-    //   console.log(fields);
-    //   query = query.select(fields);
-    // } else {
-    //   query = query.select("-__v"); // - is excluding __v is the key in json
-    // }
-
-    //5. PAGINATION
-
-    // page=2&limit=10 : page1 : 1-10, page2=11-20, page3=21-30 ...
-    // if the user wants to go to page 2 and each page contains 10 results/documents then we need to
-    // skip 10 documents to reach to the 11th document because , the page2 starts with (11-20)
-
-    // somehow we need to calculate how many documents to skip according to the page number mentioned
-    // by the user
-
-    // const page = req.query.page * 1 || 1;
-    // const limit = req.query.limit * 1 || 100;
-    // const _skip = (page - 1) * limit;
-
-    // query = query.skip(_skip).limit(limit); //exactly the meaning as above
-    // if (req.query.page) {
-    //   const numTours = await Tour.countDocuments();
-    //   if (skip >= numTours) {
-    //     throw new Error("This page does not exist");
-    //   }
-    // }
-
-    //#endregion  ---- CLEAN IMPLEMENTATION  ----
-
-    // EXECUTE QUERY
-
-    /* 
-    
-    */
     const features = new APIFeatures(Tour.find(), req.query)
-      // .filter()
-      // .limiting()
-      // .sorting()
-      // .paginate();
       .filter()
       .sort()
       .limitFields()
