@@ -139,6 +139,8 @@ tourSchema.pre("save", function (next) {
 //   next();
 // });
 
+// Added comment for modification
+
 // For find and findOne also :: 2WAY :: WE USE REGULAR EXPRESSION
 tourSchema.pre(/^find/, function (next) {
   // all the strings that starts with find
