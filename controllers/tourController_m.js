@@ -83,7 +83,10 @@ exports.updateTour = async (req, res) => {
   try {
     const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true,
+      runValidators: true, // this is the reason why we get the validation error in the model for name
+      // if the name is <10 characters or >40 characters
+
+      // will not work in few cases like discount custom validator
     });
     res.status(201).json({
       status: "success",
@@ -94,7 +97,7 @@ exports.updateTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: "fail",
-      message: "Invalid data sent",
+      message: err,
     });
   }
 };
@@ -133,7 +136,7 @@ exports.createTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: "fail",
-      message: "Invalid data sent",
+      message: err,
     });
   }
 };
@@ -159,6 +162,112 @@ exports.getAllTours = async (req, res) => {
     res.status(400).json({
       status: "fail",
       message: "Something went wrong",
+    });
+  }
+};
+
+// Aggregation pipeline
+
+// Learning aggregation pipeline :
+
+exports.getTourStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 2.0 } },
+      },
+
+      {
+        $group: {
+          _id: { $toUpper: "$difficulty" },
+          num: { $sum: 1 },
+          numRatings: { $sum: "$ratingsQuantity" },
+          avgRating: { $avg: "$ratingsAverage" },
+          avgPrice: { $avg: "$price" },
+          minPrice: { $min: "$price" },
+          maxPrice: { $max: "$price" },
+        },
+      },
+      {
+        $sort: {
+          // use the field name we used in the above group paramter
+          // why? : because in the aggregation pipeline we have the above keys only
+          avgPrice: 1, // 1 for ascending // -1 for descending
+          // ratingsAverage: 1,
+        },
+      },
+
+      // !CAN BE REPEATED
+
+      // {
+      //   $match: {
+      //     _id: { $ne: "EASY" },
+      //   },
+      // },
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        stats,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      message: err,
+    });
+  }
+};
+
+exports.getMontlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+    const plan = await Tour.aggregate([
+      {
+        $unwind: "$startDates",
+      },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year + 2}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: "$startDates" },
+          numTourStarts: { $sum: 1 },
+          // what tours are available with name in an array >> selecting name field from the document
+          tours: { $push: "$name" },
+        },
+      },
+      {
+        $addFields: { month: `$_id`, year: `${year}` },
+      },
+      {
+        $project: {
+          _id: 0, // no longer shows up
+        },
+      },
+      {
+        $sort: {
+          numTourStarts: -1,
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        plan,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      message: err,
     });
   }
 };
