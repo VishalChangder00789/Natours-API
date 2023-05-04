@@ -3,6 +3,8 @@ const app = express();
 const morgan = require("morgan");
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
+const AppError = require("./utils/appError");
+const globalErrorHandler = require("./controllers/errorController");
 
 //! Middlewares
 // It will be ran before req and res cycle ends
@@ -28,6 +30,40 @@ app.use((req, res, next) => {
 // Routing Middleware
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
+
+// MIDDLEWARE UNHANDLED ROUTES
+
+// if we are reaching at this point that means all the above routes are not found
+
+app.all("*", (req, res, next) => {
+  //! Simple way of handling
+  // res.status(404).json({
+  //   status: "fail",
+  // ? req.originalUrl is the url typed in the postman
+  //   message: `Route not found : ${req.originalUrl}`,
+  // });
+  // next();
+  //! Bit optimised way of handling
+  // const err = new Error(`Route not found : ${req.originalUrl}`); // passed string is err.message
+  // err.status = "fail";
+  // err.statusCode = 404;
+  //! Handling through a custom Error class (long way)
+  // const err = new AppError(`Route not found : ${req.originalUrl}`, 404);  // or
+  //? If the next method recieves an argument it will automatically think it's an error
+  //? No matter what the argument is , it is an error if it is passed in the next method
+  //? Moreover it will also skip all the middlewares from the stack
+
+  // next(err);  // advance way of doing is written in bottom.  In both cases the middleware to handle the error
+  // will run
+
+  //! Best way to handle
+  next(new AppError(`Route not found : ${req.originalUrl}`, 404));
+});
+
+// ERROR HANDLING MIDDLEWARE
+// Express automatically understands that the middleware is for error handling if it has 4 specific arguments
+
+app.use(globalErrorHandler);
 
 //#region --------------------------- OLD ROUTING WAY ---------------------------
 // ! Still Complex : OLD WAY
