@@ -2,9 +2,18 @@ const app = require("./app");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
+process.on("uncaughtException", (err) => {
+  console.log("Uncaught Exception ");
+  console.log(err.name, err.message);
+  server.close(() => {
+    process.exit(1); //1 is for exception   //0 for success
+  });
+});
+
 dotenv.config({ path: "./config.env" });
 // console.log(process.env);
 
+//const DB = "mongodb+srv://vishal:vishal1@natoursdb.qy7cavl.mongodb.net/natours"; // with an error after vishal1 should be vishal
 const DB = "mongodb+srv://vishal:vishal@natoursdb.qy7cavl.mongodb.net/natours";
 
 // mongodb setup
@@ -38,8 +47,17 @@ mongoose
 //   });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App running on port ${port}`);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.log(err.name, err.message);
+
+  // Helps the server to finish all the pending request
+  server.close(() => {
+    process.exit(1); //1 is for exception   //0 for success
+  });
 });
 
 // TEST

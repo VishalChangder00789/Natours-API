@@ -57,7 +57,8 @@ app.all("*", (req, res, next) => {
   // will run
 
   //! Best way to handle
-  next(new AppError(`Route not found : ${req.originalUrl}`, 404));
+  next(new AppError(`Route not found : ${req.originalUrl}`, 404)); // will be finding the next middleware
+  // which will always be Error handling middleware
 });
 
 // ERROR HANDLING MIDDLEWARE
